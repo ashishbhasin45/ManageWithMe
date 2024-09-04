@@ -1,0 +1,19 @@
+{
+  "version": 2,
+  "dgSpecHash": "/3nXN47Dgyi43P4SCiFlv4fezYoBoBAMBMqI6b9QVVfe2LLEURd8TtVlRRN44YzO0oVHdyeMCK9tHK7OI+KJPg==",
+  "success": true,
+  "projectFilePath": "D:\\Dalhousie\\Term2\\CSCI5409\\TermAssignment\\LambdaFunctions\\TodoFileHandler\\src\\TodoFileHandler\\TodoFileHandler.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\ashis\\.nuget\\packages\\amazon.lambda.annotations\\1.5.0\\amazon.lambda.annotations.1.5.0.nupkg.sha512",
+    "C:\\Users\\ashis\\.nuget\\packages\\amazon.lambda.apigatewayevents\\2.7.0\\amazon.lambda.apigatewayevents.2.7.0.nupkg.sha512",
+    "C:\\Users\\ashis\\.nuget\\packages\\amazon.lambda.core\\2.2.0\\amazon.lambda.core.2.2.0.nupkg.sha512",
+    "C:\\Users\\ashis\\.nuget\\packages\\amazon.lambda.serialization.systemtextjson\\2.4.1\\amazon.lambda.serialization.systemtextjson.2.4.1.nupkg.sha512",
+    "C:\\Users\\ashis\\.nuget\\packages\\awssdk.core\\3.7.304.29\\awssdk.core.3.7.304.29.nupkg.sha512",
+    "C:\\Users\\ashis\\.nuget\\packages\\awssdk.dynamodbv2\\3.7.305\\awssdk.dynamodbv2.3.7.305.nupkg.sha512",
+    "C:\\Users\\ashis\\.nuget\\packages\\awssdk.s3\\3.7.310.6\\awssdk.s3.3.7.310.6.nupkg.sha512",
+    "C:\\Users\\ashis\\.nuget\\packages\\microsoft.extensions.dependencyinjection\\8.0.0\\microsoft.extensions.dependencyinjection.8.0.0.nupkg.sha512",
+    "C:\\Users\\ashis\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\8.0.0\\microsoft.extensions.dependencyinjection.abstractions.8.0.0.nupkg.sha512",
+    "C:\\Users\\ashis\\.nuget\\packages\\microsoft.netcore.app.crossgen2.win-x64\\8.0.0\\microsoft.netcore.app.crossgen2.win-x64.8.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}

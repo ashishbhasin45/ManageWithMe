@@ -1,0 +1,55 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34330.188
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LoginHandler", "LambdaFunctions\src\LambdaFunctions\LoginHandler.csproj", "{CCB228C7-80BF-4B4B-A259-6BCC38A840F3}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AddToDoHandler", "AddToDoHandler\src\AddToDoHandler\AddToDoHandler.csproj", "{C6F6BCE6-E7FF-423B-B485-46076265CEC1}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AuthHandler", "AuthHandler\src\AuthHandler\AuthHandler.csproj", "{5BAD5379-3B02-4041-A95A-051C404F63F4}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GetTodoHandler", "GetTodoHandler\src\GetTodoHandler\GetTodoHandler.csproj", "{C34015B9-AFF2-4133-BA03-4DF709E6909D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CompleteTodoHandler", "CompleteTodoHandler\src\CompleteTodoHandler\CompleteTodoHandler.csproj", "{38E6CF5B-7F07-4BDD-B5C5-9DB0348F35A2}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TodoFileHandler", "TodoFileHandler\src\TodoFileHandler\TodoFileHandler.csproj", "{47E5B4C1-FE8B-4BF0-8429-E27342458C76}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CCB228C7-80BF-4B4B-A259-6BCC38A840F3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CCB228C7-80BF-4B4B-A259-6BCC38A840F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CCB228C7-80BF-4B4B-A259-6BCC38A840F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CCB228C7-80BF-4B4B-A259-6BCC38A840F3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C6F6BCE6-E7FF-423B-B485-46076265CEC1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C6F6BCE6-E7FF-423B-B485-46076265CEC1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C6F6BCE6-E7FF-423B-B485-46076265CEC1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C6F6BCE6-E7FF-423B-B485-46076265CEC1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5BAD5379-3B02-4041-A95A-051C404F63F4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5BAD5379-3B02-4041-A95A-051C404F63F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5BAD5379-3B02-4041-A95A-051C404F63F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5BAD5379-3B02-4041-A95A-051C404F63F4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C34015B9-AFF2-4133-BA03-4DF709E6909D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C34015B9-AFF2-4133-BA03-4DF709E6909D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C34015B9-AFF2-4133-BA03-4DF709E6909D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C34015B9-AFF2-4133-BA03-4DF709E6909D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{38E6CF5B-7F07-4BDD-B5C5-9DB0348F35A2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{38E6CF5B-7F07-4BDD-B5C5-9DB0348F35A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{38E6CF5B-7F07-4BDD-B5C5-9DB0348F35A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{38E6CF5B-7F07-4BDD-B5C5-9DB0348F35A2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{47E5B4C1-FE8B-4BF0-8429-E27342458C76}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{47E5B4C1-FE8B-4BF0-8429-E27342458C76}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{47E5B4C1-FE8B-4BF0-8429-E27342458C76}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{47E5B4C1-FE8B-4BF0-8429-E27342458C76}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {29B33DC1-FA8B-45BF-89EE-5FC7DE514BB5}
+	EndGlobalSection
+EndGlobal

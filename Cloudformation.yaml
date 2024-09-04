@@ -1,0 +1,790 @@
+Parameters:
+  LabRole:
+    Default: arn:aws:iam::295826444260:role/LabRole
+    Description: Lab role arn
+    Type: String
+  LabInstanceProfile:
+    Default: LabInstanceProfile
+    Description: Lab instance profile to create bean stalk
+    Type: String
+  
+Resources:
+  # Todo s3 bucket
+  TodoBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: managewithme-tododata
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: aws:kms
+              KMSMasterKeyID: alias/aws/s3
+      PublicAccessBlockConfiguration:
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+
+  BucketBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref TodoBucket
+      PolicyDocument:
+        Id: RequireEncryptionInTransit
+        Version: '2012-10-17'
+        Statement:
+          - Principal: '*'
+            Action: '*'
+            Effect: Deny
+            Resource:
+              - !GetAtt TodoBucket.Arn
+              - !Sub ${TodoBucket.Arn}/*
+            Condition:
+              Bool:
+                aws:SecureTransport: 'false'
+  
+  # Enable Guard duty
+  GuardDutyDetector:
+    Type: AWS::GuardDuty::Detector
+    Properties:
+      Enable: true
+      DataSources:
+        S3Logs:
+          Enable: true
+
+  # SNS topic             
+  LoginTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      DisplayName: LoginTopic
+      TopicName: LoginTopic
+
+  #Dynamo Db User table
+  UserTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: User
+      TableClass: STANDARD
+      AttributeDefinitions:
+        - AttributeName: Email
+          AttributeType: S
+      BillingMode: PROVISIONED
+      KeySchema:
+        - AttributeName: Email
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+
+  # Dynamo Db todos table
+  TodosTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: todos
+      TableClass: STANDARD
+      AttributeDefinitions:
+        - AttributeName: EmailId
+          AttributeType: S
+        - AttributeName: TodoId
+          AttributeType: S
+      BillingMode: PROVISIONED
+      KeySchema:
+        - AttributeName: EmailId
+          KeyType: HASH
+        - AttributeName: TodoId
+          KeyType: RANGE
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+  
+  # Auto Scaling for Write Capacity - User table
+  UserTableWriteCapacityScalableTarget:
+    Type: AWS::ApplicationAutoScaling::ScalableTarget
+    Properties:
+      MaxCapacity: 80
+      MinCapacity: 5
+      ResourceId: !Sub table/${UserTable}
+      RoleARN: !Ref LabRole
+      ScalableDimension: dynamodb:table:WriteCapacityUnits
+      ServiceNamespace: dynamodb
+
+  UserTableWriteCapacityScalingPolicy:
+    Type: AWS::ApplicationAutoScaling::ScalingPolicy
+    Properties:
+      PolicyName: UserTableWriteCapacityScalingPolicy
+      PolicyType: TargetTrackingScaling
+      ScalingTargetId: !Ref UserTableWriteCapacityScalableTarget
+      TargetTrackingScalingPolicyConfiguration:
+        TargetValue: 70
+        PredefinedMetricSpecification:
+          PredefinedMetricType: DynamoDBWriteCapacityUtilization
+        ScaleInCooldown: 50
+        ScaleOutCooldown: 50
+
+  # Auto Scaling for Read Capacity - User table
+  UserTableReadCapacityScalableTarget:
+    Type: AWS::ApplicationAutoScaling::ScalableTarget
+    Properties:
+      MaxCapacity: 80
+      MinCapacity: 5
+      ResourceId: !Sub table/${UserTable}
+      RoleARN: !Ref LabRole
+      ScalableDimension: dynamodb:table:ReadCapacityUnits
+      ServiceNamespace: dynamodb
+
+  UserTableReadCapacityScalingPolicy:
+    Type: AWS::ApplicationAutoScaling::ScalingPolicy
+    Properties:
+      PolicyName: UserTableReadCapacityScalingPolicy
+      PolicyType: TargetTrackingScaling
+      ScalingTargetId: !Ref UserTableReadCapacityScalableTarget
+      TargetTrackingScalingPolicyConfiguration:
+        TargetValue: 70
+        PredefinedMetricSpecification:
+          PredefinedMetricType: DynamoDBReadCapacityUtilization
+        ScaleInCooldown: 50
+        ScaleOutCooldown: 50
+
+  #TodosTable Read write Autoscaling capacity settings
+  TodosTableWriteCapacityScalableTarget:
+    Type: AWS::ApplicationAutoScaling::ScalableTarget
+    Properties:
+      MaxCapacity: 80
+      MinCapacity: 5
+      ResourceId: !Sub table/${TodosTable}
+      RoleARN: !Ref LabRole
+      ScalableDimension: dynamodb:table:WriteCapacityUnits
+      ServiceNamespace: dynamodb
+
+  TodosTableWriteCapacityScalingPolicy:
+    Type: AWS::ApplicationAutoScaling::ScalingPolicy
+    Properties:
+      PolicyName: TodosTableWriteCapacityScalableTarget
+      PolicyType: TargetTrackingScaling
+      ScalingTargetId: !Ref TodosTableWriteCapacityScalableTarget
+      TargetTrackingScalingPolicyConfiguration:
+        TargetValue: 70
+        PredefinedMetricSpecification:
+          PredefinedMetricType: DynamoDBWriteCapacityUtilization
+        ScaleInCooldown: 50
+        ScaleOutCooldown: 50
+
+  #TodosTable Read write Autoscaling capacity settings
+  TodosTableReadCapacityScalableTarget:
+    Type: AWS::ApplicationAutoScaling::ScalableTarget
+    Properties:
+      MaxCapacity: 80
+      MinCapacity: 5
+      ResourceId: !Sub table/${TodosTable}
+      RoleARN: !Ref LabRole
+      ScalableDimension: dynamodb:table:ReadCapacityUnits
+      ServiceNamespace: dynamodb
+
+  TodosTableReadCapacityScalingPolicy:
+    Type: AWS::ApplicationAutoScaling::ScalingPolicy
+    Properties:
+      PolicyName: TodosTableReadCapacityScalableTarget
+      PolicyType: TargetTrackingScaling
+      ScalingTargetId: !Ref TodosTableReadCapacityScalableTarget
+      TargetTrackingScalingPolicyConfiguration:
+        TargetValue: 70
+        PredefinedMetricSpecification:
+          PredefinedMetricType: DynamoDBReadCapacityUtilization
+        ScaleInCooldown: 50
+        ScaleOutCooldown: 50
+
+  # lambdas
+  LoginLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      Architectures:
+        - x86_64
+      Code:
+        S3Bucket: managewithme-code
+        S3Key: LoginHandler.zip
+      Description: Login handler lambda function
+      Environment:
+        Variables:
+          topicARN: !Ref LoginTopic
+      FunctionName: LoginHandler
+      Handler: LoginHandler::LoginHandler.Function_FunctionHandler_Generated::FunctionHandler
+      MemorySize: 256
+      PackageType: Zip
+      Role: !Ref LabRole
+      Runtime: dotnet8
+      Timeout: 15
+    DependsOn: LoginTopic
+
+  AuthLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      Architectures:
+        - x86_64
+      Code:
+        S3Bucket: managewithme-code
+        S3Key: AuthHandler.zip
+      Description: Auth handler lambda function
+      FunctionName: AuthHandler
+      Handler: AuthHandler::AuthHandler.Function_FunctionHandler_Generated::FunctionHandler
+      MemorySize: 256
+      PackageType: Zip
+      Role: !Ref LabRole
+      Runtime: dotnet8
+      Timeout: 15
+
+  AddTodoLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      Architectures:
+        - x86_64
+      Code:
+        S3Bucket: managewithme-code
+        S3Key: AddToDoHandler.zip
+      Description: Add todo handler lambda function
+      Environment:
+        Variables:
+          bucketName: !Ref TodoBucket
+          topicARN: !Ref LoginTopic
+      FunctionName: AddTodoHandler
+      Handler: AddToDoHandler::AddToDoHandler.Function_FunctionHandler_Generated::FunctionHandler
+      MemorySize: 256
+      PackageType: Zip
+      Role: !Ref LabRole
+      Runtime: dotnet8
+      Timeout: 15
+    DependsOn: LoginTopic
+
+  GetTodoLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      Architectures:
+        - x86_64
+      Code:
+        S3Bucket: managewithme-code
+        S3Key: GetTodoHandler.zip
+      Description: Get todo lambda function
+      FunctionName: GetTodoHandler
+      Handler: GetTodoHandler::GetTodoHandler.Function_FunctionHandler_Generated::FunctionHandler
+      MemorySize: 256
+      PackageType: Zip
+      Role: !Ref LabRole
+      Runtime: dotnet8
+      Timeout: 15
+
+  CompleteTodoLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      Architectures:
+        - x86_64
+      Code:
+        S3Bucket: managewithme-code
+        S3Key: CompleteTodoHandler.zip
+      Description: Complete todo lambda function
+      FunctionName: CompleteTodoHandler
+      Handler: CompleteTodoHandler::CompleteTodoHandler.Function_FunctionHandler_Generated::FunctionHandler
+      MemorySize: 256
+      PackageType: Zip
+      Role: !Ref LabRole
+      Runtime: dotnet8
+      Timeout: 15
+
+  TodoFileLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      Architectures:
+        - x86_64
+      Code:
+        S3Bucket: managewithme-code
+        S3Key: TodoFileHandler.zip
+      Description: Get todo file lambda function
+      FunctionName: TodoFileHandler
+      Environment:
+        Variables:
+          bucketName: !Ref TodoBucket
+      Handler: TodoFileHandler::TodoFileHandler.Function_FunctionHandler_Generated::FunctionHandler
+      MemorySize: 256
+      PackageType: Zip
+      Role: !Ref LabRole
+      Runtime: dotnet8
+      Timeout: 15
+
+  #API gateway REST API
+  ManageWithMeAPI:
+    UpdateReplacePolicy: Retain
+    Type: AWS::ApiGateway::RestApi
+    DeletionPolicy: Retain
+    Properties:
+      ApiKeySourceType: HEADER
+      EndpointConfiguration:
+        Types:
+          - REGIONAL
+      DisableExecuteApiEndpoint: false
+      Name: ManageWithMe
+
+  #AUTH API resources
+  AuthResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId: !GetAtt ManageWithMeAPI.RootResourceId
+      PathPart: auth
+      RestApiId: !Ref ManageWithMeAPI
+
+  #Login API Resource
+  LoginResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId: !Ref AuthResource
+      PathPart: logon
+      RestApiId: !Ref ManageWithMeAPI
+
+  #Auth Login post method
+  AuthLoginPostMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE
+      HttpMethod: POST
+      Integration:
+        ConnectionType: INTERNET
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LoginLambda.Arn}/invocations
+      MethodResponses:
+        - StatusCode: 200
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Origin: true
+        - StatusCode: 500
+      OperationName: LoginUser
+      ResourceId: !Ref LoginResource
+      RestApiId: !Ref ManageWithMeAPI
+    DependsOn: LoginLambda
+
+  # Auth Login options Method
+  AuthLoginOptionsMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE
+      HttpMethod: OPTIONS
+      ResourceId: !Ref LoginResource
+      RestApiId: !Ref ManageWithMeAPI
+      Integration:
+        IntegrationResponses:
+          - StatusCode: 200
+            ResponseParameters:
+              method.response.header.Access-Control-Allow-Headers: '''Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'''
+              method.response.header.Access-Control-Allow-Methods: '''POST,OPTIONS'''
+              method.response.header.Access-Control-Allow-Origin: '''*'''
+        RequestTemplates:
+          application/json: '{"statusCode": 200}'
+        Type: MOCK
+      MethodResponses:
+        - StatusCode: 200
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Headers: true
+            method.response.header.Access-Control-Allow-Methods: true
+            method.response.header.Access-Control-Allow-Origin: true
+
+  # Auth Login lambda invokation permission
+  AuthLoginLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !GetAtt LoginLambda.Arn
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ManageWithMeAPI}/*"
+
+  # Auth Verify APi Resource
+  VerifyResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId: !Ref AuthResource
+      PathPart: verify
+      RestApiId: !Ref ManageWithMeAPI
+
+  #Auth Verify POST method
+  AuthVerifyPostMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE
+      HttpMethod: POST
+      ResourceId: !Ref VerifyResource
+      RestApiId: !Ref ManageWithMeAPI
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${AuthLambda.Arn}/invocations
+      MethodResponses:
+        - StatusCode: 200
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Origin: true
+          ResponseModels:
+            application/json: "Empty"
+        - StatusCode: 401
+    DependsOn: AuthLambda
+
+  #Auth Verify OPTIONS method
+  AuthVerifyOptionsMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE
+      HttpMethod: OPTIONS
+      ResourceId: !Ref VerifyResource
+      RestApiId: !Ref ManageWithMeAPI
+      Integration:
+        IntegrationResponses:
+          - StatusCode: 200
+            ResponseParameters:
+              method.response.header.Access-Control-Allow-Headers: '''Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'''
+              method.response.header.Access-Control-Allow-Methods: '''POST,OPTIONS'''
+              method.response.header.Access-Control-Allow-Origin: '''*'''
+        RequestTemplates:
+          application/json: '{"statusCode": 200}'
+        Type: MOCK
+      MethodResponses:
+        - StatusCode: 200
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Headers: true
+            method.response.header.Access-Control-Allow-Methods: true
+            method.response.header.Access-Control-Allow-Origin: true
+
+  # Auth Verify lambda invokation permission
+  AuthVerifyLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !GetAtt AuthLambda.Arn
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ManageWithMeAPI}/*"
+  
+  #TODO API resources
+  TodoResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId: !GetAtt ManageWithMeAPI.RootResourceId
+      PathPart: todo
+      RestApiId: !Ref ManageWithMeAPI
+
+  #Add Todo API Resource
+  AddTodoResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId: !Ref TodoResource
+      PathPart: add
+      RestApiId: !Ref ManageWithMeAPI
+
+  # Add todo post method
+  AddTodoPostMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE
+      HttpMethod: POST
+      Integration:
+        ConnectionType: INTERNET
+        IntegrationHttpMethod: POST
+        Type: AWS
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${AddTodoLambda.Arn}/invocations
+        PassthroughBehavior: WHEN_NO_MATCH
+        IntegrationResponses:
+          - StatusCode: 200
+            ResponseParameters:
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+      MethodResponses:
+        - StatusCode: 200
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Origin: true
+      OperationName: AddTodo
+      ResourceId: !Ref AddTodoResource
+      RestApiId: !Ref ManageWithMeAPI
+    DependsOn: AddTodoLambda
+
+  # Add todo options Method
+  AddTodoOptionsMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE
+      HttpMethod: OPTIONS
+      ResourceId: !Ref AddTodoResource
+      RestApiId: !Ref ManageWithMeAPI
+      Integration:
+        IntegrationResponses:
+          - StatusCode: 200
+            ResponseParameters:
+              method.response.header.Access-Control-Allow-Headers: '''Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'''
+              method.response.header.Access-Control-Allow-Methods: '''POST,OPTIONS'''
+              method.response.header.Access-Control-Allow-Origin: '''*'''
+        RequestTemplates:
+          application/json: '{"statusCode": 200}'
+        Type: MOCK
+      MethodResponses:
+        - StatusCode: 200
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Headers: true
+            method.response.header.Access-Control-Allow-Methods: true
+            method.response.header.Access-Control-Allow-Origin: true
+  
+  # Add todo lambda invokation permission
+  AddTodoLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !GetAtt AddTodoLambda.Arn
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ManageWithMeAPI}/*"
+  
+  # Complete Todo Resource
+  CompleteTodoResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId: !Ref TodoResource
+      PathPart: complete
+      RestApiId: !Ref ManageWithMeAPI
+
+  # Complete Todo Patch method
+  CompleteTodoPatchMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE
+      HttpMethod: PATCH
+      ResourceId: !Ref CompleteTodoResource
+      RestApiId: !Ref ManageWithMeAPI
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${CompleteTodoLambda.Arn}/invocations
+      MethodResponses:
+        - StatusCode: 200
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Origin: true
+    DependsOn: CompleteTodoLambda
+
+  # Complete Todo OPTIONS method
+  CompleteTodoOptionsMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE
+      HttpMethod: OPTIONS
+      ResourceId: !Ref CompleteTodoResource
+      RestApiId: !Ref ManageWithMeAPI
+      Integration:
+        IntegrationResponses:
+          - StatusCode: 200
+            ResponseParameters:
+              method.response.header.Access-Control-Allow-Headers: '''Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'''
+              method.response.header.Access-Control-Allow-Methods: '''PATCH,OPTIONS'''
+              method.response.header.Access-Control-Allow-Origin: '''*'''
+        RequestTemplates:
+          application/json: '{"statusCode": 200}'
+        Type: MOCK
+      MethodResponses:
+        - StatusCode: 200
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Headers: true
+            method.response.header.Access-Control-Allow-Methods: true
+            method.response.header.Access-Control-Allow-Origin: true
+
+  # Complete Todo lambda invokation permission
+  CompleteTodoLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !GetAtt CompleteTodoLambda.Arn
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ManageWithMeAPI}/*"
+  
+  # Get Todo Resource
+  GetTodoResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId: !Ref TodoResource
+      PathPart: get
+      RestApiId: !Ref ManageWithMeAPI
+
+  # Get Todo GET method
+  GetTodoGetMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE
+      HttpMethod: GET
+      ResourceId: !Ref GetTodoResource
+      RestApiId: !Ref ManageWithMeAPI
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetTodoLambda.Arn}/invocations
+      MethodResponses:
+        - StatusCode: 200
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Origin: true
+    DependsOn: GetTodoLambda
+
+  # Get Todo OPTIONS method
+  GetTodoOptionsMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE
+      HttpMethod: OPTIONS
+      ResourceId: !Ref GetTodoResource
+      RestApiId: !Ref ManageWithMeAPI
+      Integration:
+        IntegrationResponses:
+          - StatusCode: 200
+            ResponseParameters:
+              method.response.header.Access-Control-Allow-Headers: '''Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'''
+              method.response.header.Access-Control-Allow-Methods: '''GET,OPTIONS'''
+              method.response.header.Access-Control-Allow-Origin: '''*'''
+        RequestTemplates:
+          application/json: '{"statusCode": 200}'
+        Type: MOCK
+      MethodResponses:
+        - StatusCode: 200
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Headers: true
+            method.response.header.Access-Control-Allow-Methods: true
+            method.response.header.Access-Control-Allow-Origin: true
+
+  # Get Todo Lambda invokation permission
+  GetTodoLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !GetAtt GetTodoLambda.Arn
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ManageWithMeAPI}/*"
+  
+  # Get Todo files Resource
+  GetTodoFilesResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId: !Ref TodoResource
+      PathPart: get-files
+      RestApiId: !Ref ManageWithMeAPI
+
+  # Get Todo Files GET method
+  GetTodoFilesMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE
+      HttpMethod: GET
+      ResourceId: !Ref GetTodoFilesResource
+      RestApiId: !Ref ManageWithMeAPI
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${TodoFileLambda.Arn}/invocations
+      MethodResponses:
+        - StatusCode: 200
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Origin: true
+    DependsOn: TodoFileLambda
+
+  # Get Todo Files OPTIONS method
+  GetTodoFilesOptionsMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE
+      HttpMethod: OPTIONS
+      ResourceId: !Ref GetTodoFilesResource
+      RestApiId: !Ref ManageWithMeAPI
+      Integration:
+        IntegrationResponses:
+          - StatusCode: 200
+            ResponseParameters:
+              method.response.header.Access-Control-Allow-Headers: '''Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'''
+              method.response.header.Access-Control-Allow-Methods: '''GET,OPTIONS'''
+              method.response.header.Access-Control-Allow-Origin: '''*'''
+        RequestTemplates:
+          application/json: '{"statusCode": 200}'
+        Type: MOCK
+      MethodResponses:
+        - StatusCode: 200
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Headers: true
+            method.response.header.Access-Control-Allow-Methods: true
+            method.response.header.Access-Control-Allow-Origin: true
+
+  # Get Todo File Lambda invokation permission
+  GetTodoFileLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !GetAtt TodoFileLambda.Arn
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ManageWithMeAPI}/*"
+  
+  # API gateway Deployment
+  APIGatewayDeployment:
+    UpdateReplacePolicy: Retain
+    Type: AWS::ApiGateway::Deployment
+    DeletionPolicy: Retain
+    Properties:
+      RestApiId: !Ref ManageWithMeAPI
+      StageName: prod
+    DependsOn:
+      - AuthLoginPostMethod
+      - AuthLoginOptionsMethod
+      - AuthVerifyPostMethod
+      - AuthVerifyOptionsMethod
+      - AddTodoPostMethod
+      - AddTodoOptionsMethod
+      - CompleteTodoPatchMethod
+      - CompleteTodoOptionsMethod
+      - GetTodoGetMethod
+      - GetTodoOptionsMethod
+      - GetTodoFilesMethod
+      - GetTodoFilesOptionsMethod
+  
+  # Elastic Beanstalk Application
+  ElasticBeanstalkApplication:
+    Type: AWS::ElasticBeanstalk::Application
+    Properties:
+      ApplicationName: ManageWithMe
+      Description: Angular application deployed using Docker
+
+  ElasticBeanstalkEnvironment:
+    Type: AWS::ElasticBeanstalk::Environment
+    Properties:
+      ApplicationName: !Ref ElasticBeanstalkApplication
+      EnvironmentName: ManageWithMe-prod
+      SolutionStackName: "64bit Amazon Linux 2023 v4.3.5 running Docker"
+      OptionSettings:
+        - Namespace: aws:autoscaling:launchconfiguration
+          OptionName: InstanceType
+          Value: t3.small
+
+        - Namespace: aws:autoscaling:launchconfiguration
+          OptionName: IamInstanceProfile
+          Value: !Ref LabInstanceProfile
+
+        - Namespace: aws:elasticbeanstalk:environment
+          OptionName: EnvironmentType
+          Value: SingleInstance
+
+        - Namespace: aws:elasticbeanstalk:environment
+          OptionName: ServiceRole
+          Value: !Ref LabRole
+
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: API_URL
+          Value: !Sub https://${ManageWithMeAPI}.execute-api.${AWS::Region}.amazonaws.com/prod/
+
+        - Namespace: aws:elasticbeanstalk:managedactions
+          OptionName: ManagedActionsEnabled
+          Value: 'false'
+
+        - Namespace: aws:elasticbeanstalk:environment
+          OptionName: LoadBalancerType
+          Value: application
+
+      VersionLabel: !Ref ApplicationVersion
+    DependsOn: ManageWithMeAPI
+
+  ApplicationVersion:
+    Type: AWS::ElasticBeanstalk::ApplicationVersion
+    Properties:
+      ApplicationName: !Ref ElasticBeanstalkApplication
+      Description: Angular application version
+      SourceBundle:
+        S3Bucket: managewithme-code
+        S3Key: webapp.zip
+
+Outputs:
+  EnvironmentURL:
+    Description: URL of the Elastic Beanstalk environment
+    Value: !Join ['', ['http://', !GetAtt ElasticBeanstalkEnvironment.EndpointURL]]

@@ -1,0 +1,13 @@
+D:\Dalhousie\Term2\CSCI5409\TermAssignment\LambdaFunctions\TodoFileHandler\src\TodoFileHandler\bin\Release\net8.0\publish\TodoFileHandler.deps.json
+D:\Dalhousie\Term2\CSCI5409\TermAssignment\LambdaFunctions\TodoFileHandler\src\TodoFileHandler\bin\Release\net8.0\publish\TodoFileHandler.runtimeconfig.json
+D:\Dalhousie\Term2\CSCI5409\TermAssignment\LambdaFunctions\TodoFileHandler\src\TodoFileHandler\bin\Release\net8.0\publish\TodoFileHandler.pdb
+D:\Dalhousie\Term2\CSCI5409\TermAssignment\LambdaFunctions\TodoFileHandler\src\TodoFileHandler\bin\Release\net8.0\publish\Amazon.Lambda.Annotations.dll
+D:\Dalhousie\Term2\CSCI5409\TermAssignment\LambdaFunctions\TodoFileHandler\src\TodoFileHandler\bin\Release\net8.0\publish\Amazon.Lambda.APIGatewayEvents.dll
+D:\Dalhousie\Term2\CSCI5409\TermAssignment\LambdaFunctions\TodoFileHandler\src\TodoFileHandler\bin\Release\net8.0\publish\Amazon.Lambda.Core.dll
+D:\Dalhousie\Term2\CSCI5409\TermAssignment\LambdaFunctions\TodoFileHandler\src\TodoFileHandler\bin\Release\net8.0\publish\Amazon.Lambda.Serialization.SystemTextJson.dll
+D:\Dalhousie\Term2\CSCI5409\TermAssignment\LambdaFunctions\TodoFileHandler\src\TodoFileHandler\bin\Release\net8.0\publish\AWSSDK.Core.dll
+D:\Dalhousie\Term2\CSCI5409\TermAssignment\LambdaFunctions\TodoFileHandler\src\TodoFileHandler\bin\Release\net8.0\publish\AWSSDK.DynamoDBv2.dll
+D:\Dalhousie\Term2\CSCI5409\TermAssignment\LambdaFunctions\TodoFileHandler\src\TodoFileHandler\bin\Release\net8.0\publish\AWSSDK.S3.dll
+D:\Dalhousie\Term2\CSCI5409\TermAssignment\LambdaFunctions\TodoFileHandler\src\TodoFileHandler\bin\Release\net8.0\publish\Microsoft.Extensions.DependencyInjection.dll
+D:\Dalhousie\Term2\CSCI5409\TermAssignment\LambdaFunctions\TodoFileHandler\src\TodoFileHandler\bin\Release\net8.0\publish\Microsoft.Extensions.DependencyInjection.Abstractions.dll
+D:\Dalhousie\Term2\CSCI5409\TermAssignment\LambdaFunctions\TodoFileHandler\src\TodoFileHandler\bin\Release\net8.0\publish\TodoFileHandler.dll
