@@ -1,0 +1,11 @@
+@if(isVisible){
+    <div class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
+        <div class="card flex justify-center items-center">
+          <p-progressSpinner ariaLabel="loading"></p-progressSpinner>
+        </div>
+      </div>
+}
+@if(isLoggedIn){
+<app-nav-bar></app-nav-bar>
+}
+<router-outlet></router-outlet>

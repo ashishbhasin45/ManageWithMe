@@ -1,0 +1,87 @@
+<div class="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
+  <div class="sm:mx-auto sm:w-full sm:max-w-sm">
+    <img
+      class="mx-auto h-10 w-auto"
+      src="../../../assets/logo.png"
+      alt="Manage with me"
+    />
+    <h2
+      class="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900"
+    >
+      Sign in to your account
+    </h2>
+  </div>
+  <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
+    <form #loginForm="ngForm" class="space-y-6">
+      <div>
+        <label
+          for="email"
+          class="block text-sm font-medium leading-6 text-gray-900"
+          >Email address</label
+        >
+        <div class="mt-2">
+          <input
+            id="email"
+            name="email"
+            type="email"
+            pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$"
+            autocomplete="email"
+            [(ngModel)]="email"
+            required = "true"
+            #emailInput="ngModel"
+            class="block w-full rounded-md border-0 p-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+          />
+        </div>
+      </div>
+
+      @if (loginAttempted) {
+        <div>
+          <div class="flex items-center justify-between">
+            <label
+              for="otp"
+              class="block text-sm font-medium leading-6 text-gray-900"
+              >OTP</label
+            >
+          </div>
+          <div class="mt-2">
+            <input
+              id="otp"
+              name="otp"
+              type="number"
+              [(ngModel)]="otp"
+              class="block w-full rounded-md border-0 p-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+            />
+          </div>
+          <div class="mt-2">
+            <p class="text-center text-sm text-gray-500">
+              *If you are signing in for the first time, please check your email and accept to be added in the mailer list and then click on resend OTP
+            </p>
+          </div>
+        </div>
+        <div class="flex justify-between">
+          <button
+            (click)="authorize()"
+            class="flex w-full justify-center rounded-md mr-2 bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:bg-gray-500"
+          >
+            Sign in
+          </button>
+          <button
+            (click)="login()"
+            class="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:bg-gray-500"
+          >
+            Resend OTP
+          </button>
+        </div>
+      }
+      @else {
+        <button
+        (click)="login()"
+        [disabled]="!loginForm.valid"
+        class="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:bg-gray-500"
+      >
+        Send OTP
+      </button>
+      }
+    </form>
+  </div>
+</div>

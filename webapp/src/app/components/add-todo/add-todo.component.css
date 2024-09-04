@@ -1,0 +1,43 @@
+/* Custom styles for the p-fileUpload component */
+::ng-deep .p-fileupload .p-fileupload-buttonbar .p-button {
+    font-size: x-small;
+}
+
+::ng-deep .p-fileupload .p-fileupload-content {
+    font-size: x-small;
+    padding: 0%;
+}
+
+::ng-deep .p-fileupload-row>div {
+    padding: 1rem 1rem 0 1rem;
+}
+
+::ng-deep .p-fileupload-row>div:nth-child(1) {
+    width: 30%;
+}
+
+::ng-deep .p-fileupload-row>div:nth-child(2) {
+    width: 30%;
+}
+
+::ng-deep .p-fileupload-row>div:nth-child(3) {
+    width: 20%;
+}
+
+::ng-deep .p-fileupload-row>div:nth-child(4) {
+    width: 15%;
+}
+
+::ng-deep .p-fileupload-buttonbar {
+    display: flex;
+    justify-content: space-between;
+}
+
+::ng-deep .p-button.p-button-icon-only {
+    width: 2.5rem;
+    height: 2rem;
+}
+
+::ng-deep .p-calendar .p-inputtext {
+    width: 450px;
+}
